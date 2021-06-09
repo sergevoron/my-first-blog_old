@@ -1,0 +1,100 @@
+sevenv\Scripts\activate
+
+Создание приложения
+Для создания приложения нам понадобится набрать следующую инструкцию в командной строке (из директории djangogirls, где находится файл manage.py):
+
+Mac OS X и Linux:
+(myvenv) ~/djangogirls$ python manage.py startapp blog
+Windows:
+(myvenv) C:\Users\Name\djangogirls> python manage.py startapp blog
+
+Обрати внимание, что в нашем проекте появилась новая папка blog, которая содержит некоторые файлы. Таким образом, структура нашего проекта будет выглядеть так:
+
+djangogirls
+├── blog
+│   ├── __init__.py
+│   ├── admin.py
+│   ├── apps.py
+│   ├── migrations
+│   │   └── __init__.py
+│   ├── models.py
+│   ├── tests.py
+│   └── views.py
+├── db.sqlite3
+├── manage.py
+└── mysite
+    ├── __init__.py
+    ├── settings.py
+    ├── urls.py
+    └── wsgi.py
+После того, как приложение создано, нам нужно сообщить Django, что теперь он должен его использовать. Мы сделаем это с помощью файла mysite/settings.py. Нам нужно найти INSTALLED_APPS и добавить к списку 'blog', прямо перед ]. Конечный результат должен выглядеть следующим образом:
+
+mysite/settings.py
+INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'blog',
+]
+
+Создание модели записи в блоге
+В файле blog/models.py мы определяем все Модели — модель записи для блога также пойдёт сюда.
+
+Открой файл blog/models.py, удали весь текст и вставь на его место следующий код:
+
+>>>START CODE
+
+blog/models.py
+from django.conf import settings
+from django.db import models
+from django.utils import timezone
+
+
+class Post(models.Model):
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    title = models.CharField(max_length=200)
+    text = models.TextField()
+    created_date = models.DateTimeField(default=timezone.now)
+    published_date = models.DateTimeField(blank=True, null=True)
+
+    def publish(self):
+        self.published_date = timezone.now()
+        self.save()
+
+    def __str__(self):
+        return self.title
+
+>>>END CODE
+
+Создаём таблицы моделей в базе данных
+
+Последним шагом будет добавление нашей модели в базу данных. Сначала мы должны дать Django знать, что сделали изменения в нашей модели (мы её только что создали!). Набери python manage.py makemigrations blog. Должно получиться примерно так:
+
+command-line
+(myvenv) ~/djangogirls$ python manage.py makemigrations blog
+Migrations for 'blog':
+  blog/migrations/0001_initial.py:
+  - Create model Post
+Примечание: не забудь сохранить отредактированные файлы. Иначе твой компьютер выполнит команду с их предыдущей версией, и могут появиться неожиданные ошибки.
+
+Django создал для нас файл с миграцией для базы данных. Набери python manage.py migrate blog, результат должен быть следующим:
+
+command-line
+(myvenv) ~/djangogirls$ python manage.py migrate blog
+Operations to perform:
+  Apply all migrations: blog
+Running migrations:
+  Rendering model states... DONE
+  Applying blog.0001_initial... OK
+
+
+
+
+python manage.py startapp blog
+
+python manage.py makemigrations blog
+
+python manage.py migrate blog
